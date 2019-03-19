@@ -3,10 +3,7 @@ package com.jay.socket.spring;
 import com.google.gson.Gson;
 import com.jay.socket.spring.entity.WebSocketParams;
 import com.jay.socket.tomcat.SocketResult;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketMessage;
-import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -21,27 +18,42 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class WebSocketHandler extends TextWebSocketHandler {
 
     private CopyOnWriteArrayList<WebSocketSession> sessionSet = new CopyOnWriteArrayList<>();
-    private WebSocketSession session;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
-        this.session = session;
         this.sessionSet.add(session);
         SocketResult<String> socketResult = new SocketResult<>();
         socketResult.setMethod("notifySystem");
         socketResult.setResult("连接成功");
         TextMessage textMessage = new TextMessage(socketResult.toString().getBytes());
+        System.out.println("connect succeed");
         session.sendMessage(textMessage);
     }
 
+//    @Override
+//    public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
+//        String text = message.getPayload().toString();
+//        Gson gson = new Gson();
+////        WebSocketParams params = gson.fromJson(text, WebSocketParams.class);
+//        System.out.println(text);
+//        super.handleMessage(session, message);
+//    }
+
     @Override
-    public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        String text = message.getPayload().toString();
-        Gson gson = new Gson();
-        WebSocketParams params = gson.fromJson(text, WebSocketParams.class);
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+        String text = message.getPayload();
         System.out.println(text);
-        super.handleMessage(session, message);
+    }
+
+    @Override
+    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
+
+    }
+
+    @Override
+    protected void handlePongMessage(WebSocketSession session, PongMessage message) {
+
     }
 
     @Override
@@ -57,6 +69,5 @@ public class WebSocketHandler extends TextWebSocketHandler {
         }
         sessionSet.remove(session);
     }
-
 
 }
