@@ -17,7 +17,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @Author lufangjie
  * @Version 1.0
  **/
-@ComponentScan(value = "com.jay.socket.netty")
+@ComponentScan(value = "com.jay.socket.spring")
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 public class SocketStart implements CommandLineRunner {
 
@@ -25,18 +25,18 @@ public class SocketStart implements CommandLineRunner {
         SpringApplication.run(SocketStart.class, args);
     }
 
-    @Autowired
-    private WebSocketServer server;
-
-    @Bean
-    public WebSocketServer server() {
-        return new WebSocketServer();
-    }
+//    @Autowired
+//    private WebSocketServer server;
+//
+//    @Bean
+//    public WebSocketServer server() {
+//        return new WebSocketServer();
+//    }
 
     @Override
     public void run(String... args) throws Exception {
-        ChannelFuture future = server.run();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> server.destroy()));
-        future.channel().closeFuture().syncUninterruptibly();
+//        ChannelFuture future = server.run();
+//        Runtime.getRuntime().addShutdownHook(new Thread(() -> server.destroy()));
+//        future.channel().closeFuture().syncUninterruptibly();
     }
 }

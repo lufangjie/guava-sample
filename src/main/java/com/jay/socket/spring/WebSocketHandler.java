@@ -1,8 +1,7 @@
 package com.jay.socket.spring;
 
-import com.google.gson.Gson;
-import com.jay.socket.spring.entity.WebSocketParams;
 import com.jay.socket.tomcat.SocketResult;
+import com.jay.utils.FunctionalInterfaceWrapper;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
@@ -21,24 +20,15 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        System.out.println(session.getId());
         super.afterConnectionEstablished(session);
         this.sessionSet.add(session);
         SocketResult<String> socketResult = new SocketResult<>();
         socketResult.setMethod("notifySystem");
         socketResult.setResult("连接成功");
         TextMessage textMessage = new TextMessage(socketResult.toString().getBytes());
-        System.out.println("connect succeed");
         session.sendMessage(textMessage);
     }
-
-//    @Override
-//    public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-//        String text = message.getPayload().toString();
-//        Gson gson = new Gson();
-////        WebSocketParams params = gson.fromJson(text, WebSocketParams.class);
-//        System.out.println(text);
-//        super.handleMessage(session, message);
-//    }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
@@ -64,10 +54,17 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        if(session.isOpen()){
+        if (session.isOpen()) {
             session.close();
         }
         sessionSet.remove(session);
     }
 
+    public void sendMessageForAll(String message) {
+        this.sessionSet.forEach(
+                FunctionalInterfaceWrapper.throwingConsumerWrapper(session -> {
+                    TextMessage textMessage = new TextMessage(message);
+                    session.sendMessage(textMessage);
+                }));
+    }
 }
